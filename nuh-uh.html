@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Custom Swap Typewriter</title>
+    <style>
+        /* Load your custom font from the root directory */
+        @font-face {
+            font-family: 'Ungsalh';
+            src: url('Ungsalh-Regular.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: white; }
+        
+        textarea {
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            outline: none;
+            padding: 40px;
+            box-sizing: border-box;
+            /* Priority: Custom Font -> Segoe UI -> standard sans-serif */
+            font-family: 'Ungsalh', 'Segoe UI', sans-serif;
+            font-size: 1.5rem;
+            line-height: 1.6;
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+    <textarea id="editor" autofocus></textarea>
+
+    <script>
+        const editor = document.getElementById('editor');
+
+        // Bidirectional swap map (lowercase only; script handles caps automatically)
+        const baseSwaps = {
+            'a': 'i', 'i': 'a',
+            'e': 'u', 'u': 'e',
+            'l': 's', 's': 'l',
+            'x': 'q', 'q': 'x',
+            't': 'f', 'f': 't'
+        };
+
+        // Generate full map including uppercase variants
+        const fullMap = { ...baseSwaps };
+        for (const [key, value] of Object.entries(baseSwaps)) {
+            fullMap[key.toUpperCase()] = value.toUpperCase();
+        }
+
+        editor.addEventListener('input', (e) => {
+            // Only process if a single character was inserted
+            if (e.inputType === 'insertText' && e.data && e.data.length === 1) {
+                const char = e.data;
+                if (fullMap[char]) {
+                    const start = editor.selectionStart;
+                    const end = editor.selectionEnd;
+                    const text = editor.value;
+
+                    // Update the value with the swapped character
+                    editor.value = text.substring(0, start - 1) + fullMap[char] + text.substring(end);
+
+                    // Maintain cursor position for smooth typing
+                    editor.setSelectionRange(start, end);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
